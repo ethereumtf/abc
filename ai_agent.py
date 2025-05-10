@@ -43,22 +43,74 @@ class GitHubAIAssistant:
                 'description': self.repo.description or "No description",
                 'languages': self._get_languages(),
                 'open_issues': list(self.repo.issues(state='open'))[:10],
-                'recent_commits': list(self.repo.commits())[:10]
+                'recent_commits': list(self.repo.commits())[:10],
+                'stars': self.repo.stargazers_count,
+                'forks': self.repo.forks_count,
+                'watchers': self.repo.watchers_count,
+                'open_issues_count': self.repo.open_issues_count,
+                'default_branch': self.repo.default_branch
             }
 
-            # Use Gemini to analyze repository
-            prompt = f"""
-            Analyze this GitHub repository and identify potential improvements:
-            Repository Description: {repo_info['description']}
-            Languages: {', '.join(repo_info['languages'])}
+            # Create a more detailed analysis prompt
+            recent_commits = []
+            for commit in repo_info['recent_commits']:
+                recent_commits.append(f"- {commit.message} ({commit.author.name if commit.author else 'Unknown'})")
             
-            Identify:
-            1. Code improvements needed
-            2. Documentation gaps
-            3. Testing needs
-            4. Performance optimizations
+            open_issues = []
+            for issue in repo_info['open_issues']:
+                open_issues.append(f"- #{issue.number}: {issue.title} ({issue.state})")
 
-            Return a structured JSON with categories and specific suggestions.
+            repo_info_str = f"""Repository Information:
+            - Description: {repo_info['description']}
+            - Languages: {', '.join(repo_info['languages'])}
+            - Stars: {repo_info['stars']}
+            - Forks: {repo_info['forks']}
+            - Watchers: {repo_info['watchers']}
+            - Open Issues: {repo_info['open_issues_count']}
+            - Default Branch: {repo_info['default_branch']}"""
+
+            commits_str = "\n".join(recent_commits)
+            issues_str = "\n".join(open_issues)
+
+            prompt = f"""Analyze this GitHub repository and provide detailed suggestions.
+
+            {repo_info_str}
+
+            Recent Commits:
+            {commits_str}
+
+            Open Issues:
+            {issues_str}
+
+            Please analyze the repository and provide detailed suggestions in the following categories:
+
+            1. Code Improvements:
+            - Identify potential code quality issues
+            - Suggest architectural improvements
+            - Recommend best practices
+
+            2. Documentation:
+            - Identify missing documentation
+            - Suggest documentation improvements
+            - Recommend documentation structure
+
+            3. Testing:
+            - Identify missing tests
+            - Suggest test improvements
+            - Recommend testing strategies
+
+            4. Performance:
+            - Identify potential performance bottlenecks
+            - Suggest optimizations
+            - Recommend monitoring strategies
+
+            For each suggestion, please:
+            - Provide a clear description of the issue
+            - Explain the potential impact
+            - Suggest specific steps to improve
+            - Rate the priority (High, Medium, Low)
+
+            Format the response as a JSON object with these categories and suggestions.
             """
 
             print("Sending analysis request to Gemini...")

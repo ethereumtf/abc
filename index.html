@@ -3,113 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artificial Builders - AI GitHub Assistant</title>
+    <title>Artificial Builders - GitHub AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --error-color: #dc2626;
+            --background-color: #f3f4f6;
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.05);
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
         }
+
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 3rem;
         }
+
         .header h1 {
-            color: #333;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
         }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            margin-bottom: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 8px -1px var(--shadow-color);
+        }
+
         .controls {
-            margin-bottom: 20px;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
         }
+
         .button {
-            background-color: #4CAF50;
+            background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 0.5rem;
+            font-weight: 600;
             cursor: pointer;
-            margin-right: 10px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 150px;
         }
+
+
         .button:hover {
-            background-color: #45a049;
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
         }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button i {
+            font-size: 1.1rem;
+        }
+
         .analysis-results {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 4px;
-            background-color: #f8f9fa;
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
+
+        .category-card {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+
+        .category-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .suggestion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            border-left: 3px solid var(--primary-color);
+            margin-bottom: 0.5rem;
+            background-color: rgba(37, 99, 235, 0.05);
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .issues-section {
+            margin-top: 2rem;
+        }
+
         .issues-list {
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
-        .issue-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+
+        .issue-card {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
         }
-        .issue-item:last-child {
-            border-bottom: none;
+
+        .issue-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
         }
+
+        .issue-card .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .issue-card .status.open {
+            background-color: rgba(22, 163, 74, 0.1);
+            color: var(--success-color);
+        }
+
+        .issue-card .status.closed {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--error-color);
+        }
+
+        .category-card {
+            background-color: var(--card-background);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .suggestion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8fafc;
+        }
+
+        .issues-list {
+            margin-top: 2rem;
+        }
+
+        .issue-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            background-color: var(--card-background);
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .issue-number {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
         .issue-title {
-            font-weight: bold;
-            color: #1a73e8;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
+
+        .issue-body {
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+        }
+
         .issue-state {
-            color: #4CAF50;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
+
+        .issue-state.open {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
         .issue-state.closed {
-            color: #db4437;
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Artificial Builders - AI GitHub Assistant</h1>
-            <p>Analyze and contribute to GitHub repositories using AI</p>
+            <h1>Artificial Builders</h1>
+            <p>AI-Powered GitHub Repository Analysis and Contribution Assistant</p>
         </div>
 
         <div class="controls">
-            <button class="button" onclick="analyzeRepository()">Analyze Repository</button>
-            <button class="button" onclick="createIssues()">Create Issues</button>
-            <button class="button" onclick="refreshIssues()">Refresh Issues</button>
+            <input type="text" id="repository-input" placeholder="Enter GitHub repository URL">
+            <button onclick="analyzeRepository()" class="button" id="analyze-btn" disabled>
+                <i class="fas fa-microscope"></i>
+                Analyze Repository
+            </button>
+            <button onclick="createIssues()" class="button" id="create-issues-btn" disabled>
+                <i class="fas fa-plus-circle"></i>
+                Create Issues
+            </button>
+            <button onclick="refreshIssues()" class="button" id="refresh-btn" disabled>
+                <i class="fas fa-sync-alt"></i>
+                Refresh Issues
+            </button>
         </div>
 
-        <div id="analysisResults" class="analysis-results">
-            <h3>Analysis Results</h3>
+        <div class="analysis-results">
             <div id="suggestions"></div>
         </div>
 
         <div class="issues-list">
-            <h3>Issues</h3>
+            <h2>Issues</h2>
             <div id="issues"></div>
         </div>
     </div>
 
     <script>
-        async function analyzeRepository() {
+        let currentRepo = null;
+
+        async function setRepository() {
+            const repoUrl = document.getElementById('repo-url').value.trim();
+            if (!repoUrl) {
+                alert('Please enter a GitHub repository URL');
+                return;
+            }
+
             try {
-                const response = await fetch('http://localhost:8000/api/analyze');
-                const data = await response.json();
+                // Extract owner and repo from URL
+                const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
+                if (!match) {
+                    throw new Error('Invalid GitHub repository URL format');
+                }
+
+                const [_, owner, repo] = match;
                 
-                displayAnalysisResults(data);
+                // Update environment variables
+                localStorage.setItem('REPO_OWNER', owner);
+                localStorage.setItem('REPO_NAME', repo);
+
+                // Update UI
+                document.getElementById('repo-status').textContent = `Connected to ${owner}/${repo}`;
+                document.getElementById('repo-status').classList.add('success');
+                
+                // Enable buttons
+                document.getElementById('analyze-btn').disabled = false;
+                document.getElementById('create-issues-btn').disabled = false;
+                document.getElementById('refresh-btn').disabled = false;
+
+                // Store current repo
+                currentRepo = { owner, repo };
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error analyzing repository');
+                const statusDiv = document.getElementById('repo-status');
+                statusDiv.textContent = error.message;
+                statusDiv.classList.add('error');
+                setTimeout(() => statusDiv.classList.remove('error'), 3000);
             }
         }
 
         async function createIssues() {
+            if (!currentRepo) {
+                alert('Please set a repository first');
+                return;
+            }
+
             try {
-                const response = await fetch('http://localhost:8000/api/create_issues', {
-                    method: 'POST'
+                const response = await fetch('http://localhost:8001/api/create_issues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentRepo)
                 });
                 const data = await response.json();
                 
@@ -122,8 +372,19 @@
         }
 
         async function refreshIssues() {
+            if (!currentRepo) {
+                alert('Please set a repository first');
+                return;
+            }
+
             try {
-                const response = await fetch('http://localhost:8000/api/issues');
+                const response = await fetch('http://localhost:8001/api/issues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentRepo)
+                });
                 const issues = await response.json();
                 
                 displayIssues(issues);
@@ -139,38 +400,74 @@
 
             for (const [category, suggestions] of Object.entries(data.suggestions)) {
                 const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-card';
                 categoryDiv.innerHTML = `
-                    <h4>${category.replace('_', ' ').title()}</h4>
-                    <ul>
-                        ${suggestions.map(s => `<li>${s}</li>`).join('')}
-                    </ul>
+                    <h3>${category.replace('_', ' ').title()}</h3>
+                    <div class="suggestion-list">
+                        ${suggestions.map(s => `
+                            <div class="suggestion-item">
+                                <p>${s}</p>
+                                <div class="priority-badge">
+                                    Priority: ${s.priority || 'Medium'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 `;
                 suggestionsDiv.appendChild(categoryDiv);
             }
 
-            const issuesCreated = document.createElement('p');
-            issuesCreated.textContent = `Issues created: ${data.issues_created}`;
-            suggestionsDiv.appendChild(issuesCreated);
+            if (data.issues_created > 0) {
+                const issuesCreatedDiv = document.createElement('div');
+                issuesCreatedDiv.className = 'category-card';
+                issuesCreatedDiv.innerHTML = `
+                    <h3>Issues Created</h3>
+                    <p>${data.issues_created} new issues were created.</p>
+                `;
+                suggestionsDiv.appendChild(issuesCreatedDiv);
+            }
         }
 
         function displayIssues(issues) {
             const issuesDiv = document.getElementById('issues');
             issuesDiv.innerHTML = '';
 
+            if (issues.length === 0) {
+                issuesDiv.innerHTML = '<p>No issues found</p>';
+                return;
+            }
+
+            const issuesList = document.createElement('div');
+            issuesList.className = 'issues-list';
+
             issues.forEach(issue => {
-                const issueDiv = document.createElement('div');
-                issueDiv.className = 'issue-item';
-                issueDiv.innerHTML = `
-                    <div class="issue-title">#${issue.number} ${issue.title}</div>
-                    <div>${issue.body}</div>
-                    <div class="issue-state ${issue.state}">${issue.state}</div>
+                const issueCard = document.createElement('div');
+                issueCard.className = 'issue-card';
+                issueCard.innerHTML = `
+                    <h4>${issue.title}</h4>
+                    <div class="issue-details">
+                        <div class="status ${issue.state === 'open' ? 'open' : 'closed'}">
+                            ${issue.state === 'open' ? 'Open' : 'Closed'}
+                        </div>
+                        <p>${issue.body}</p>
+                        <div class="issue-meta">
+                            <span>Created: ${new Date(issue.created_at).toLocaleDateString()}</span>
+                            <span>Updated: ${new Date(issue.updated_at).toLocaleDateString()}</span>
+                            <span>Comments: ${issue.comments}</span>
+                        </div>
+                    </div>
                 `;
-                issuesDiv.appendChild(issueDiv);
+                issuesList.appendChild(issueCard);
             });
+
+            issuesDiv.appendChild(issuesList);
         }
 
         // Initial refresh
         refreshIssues();
     </script>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
 </body>
 </html>
