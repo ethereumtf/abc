@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artificial Builders - GitHub AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #2563eb;
@@ -28,12 +29,13 @@
         }
 
         body {
-            font-family: 'Space Grotesk', 'Inter', sans-serif;
-            background-color: var(--background-color);
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: var(--text-color);
             line-height: 1.5;
-            margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
@@ -43,109 +45,254 @@
             display: flex;
             flex-direction: column;
             gap: 2rem;
+            flex: 1;
         }
 
         .hero {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
-            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.1));
+            backdrop-filter: blur(10px);
             border-radius: 2rem;
-            margin-bottom: 3rem;
+            padding: 4rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1);
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            background: linear-gradient(45deg, #fff, #e0e0e0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .hero p {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             opacity: 0.9;
             margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .repo-input {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
             border-radius: 1rem;
             display: flex;
             gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            color: var(--text-light);
-            font-size: 1.1rem;
-        }
-
-        .card {
-            background-color: var(--card-background);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
-            margin-bottom: 2rem;
+        .input-field {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            color: white;
             transition: all 0.2s ease;
         }
 
-        .card:hover {
-            box-shadow: 0 6px 8px -1px var(--shadow-color);
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+        .input-field:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
         }
 
         .button {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
             padding: 1rem 2rem;
             border: none;
             border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            min-width: 150px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .button:disabled {
-            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
-            cursor: not-allowed;
-            opacity: 0.7;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .button:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px -1px var(--shadow-color);
         }
 
         .button:active {
             transform: translateY(0);
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+
+        .button i {
+            font-size: 1.25rem;
+        }
+
+        .repo-status {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: rgba(22, 163, 74, 0.2);
+            margin-top: 1rem;
+            color: white;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn i {
+            font-size: 1.25rem;
+        }
+
+        .analysis-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .suggestion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .suggestion-item {
+            padding: 1rem;
+            border-left: 3px solid var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0 0.75rem 0.75rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .issues-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .issues-section h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        #issues {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .issue-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .issue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .issue-card .title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .issue-card .meta {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .issue-card .meta .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(22, 163, 74, 0.2);
+            color: white;
+        }
+
+        .issue-card .meta .comments {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .toast-container {
@@ -159,16 +306,14 @@
         }
 
         .toast {
-            background: white;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            color: white;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .toast.show {
@@ -177,122 +322,16 @@
         }
 
         .toast.info {
-            background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
-            color: var(--text-color);
+            background: rgba(37, 99, 235, 0.2);
         }
 
         .toast.success {
-            background: linear-gradient(135deg, #bbf7d0, #dcfce7);
-            color: var(--success-color);
+            background: rgba(22, 163, 74, 0.2);
         }
 
         .toast.error {
-            background: linear-gradient(135deg, #fecaca, #fee2e2);
-            color: var(--error-color);
-        }
-
-        .button i {
-            font-size: 1.1rem;
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 0.75rem;
-            font-size: 1.1rem;
-            transition: all 0.2s ease;
-            background: white;
-            color: var(--text-color);
-        }
-
-        .input-group {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex: 1;
-            max-width: 600px;
-        }
-
-        .analysis-results {
-            margin-top: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .category-card {
-            background-color: var(--card-background);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .category-card h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .suggestion-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .suggestion-item {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            background-color: #f8fafc;
-        }
-
-        .issues-list {
-            margin-top: 2rem;
-        }
-
-        .issue-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.25rem;
-            border-radius: 0.75rem;
-            background-color: var(--card-background);
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .issue-number {
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .issue-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .issue-body {
-            color: var(--text-light);
-            margin-bottom: 0.75rem;
-        }
-
-        .issue-state {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .issue-state.open {
-            background-color: #dcfce7;
-            color: #16a34a;
-        }
-
-        .issue-state.closed {
-            background-color: #fee2e2;
-            color: #dc2626;
+            background: rgba(220, 38, 38, 0.2);
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -300,13 +339,24 @@
                 padding: 1rem;
             }
 
-            .header h1 {
-                font-size: 2rem;
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.25rem;
             }
 
             .controls {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-results {
+                grid-template-columns: 1fr;
+            }
+
+            #issues {
+                grid-template-columns: 1fr;
             }
         }
     </style>

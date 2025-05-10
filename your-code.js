@@ -3,10 +3,12 @@ String.prototype.toTitleCase = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 };
 
+// Initialize toast container
 const toastContainer = document.createElement('div');
 toastContainer.className = 'toast-container';
 document.body.appendChild(toastContainer);
 
+// Show toast notification
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -51,6 +53,7 @@ createIssuesBtn.disabled = false;
 // Store current repo
 let currentRepo = defaultRepo;
 
+// Analyze issues
 async function analyzeIssues() {
     try {
         showToast('Analyzing issues...', 'info');
@@ -67,10 +70,15 @@ async function analyzeIssues() {
         showToast('Issue analysis complete!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error analyzing issues', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Analyze documentation
 async function analyzeDocs() {
     try {
         showToast('Analyzing documentation...', 'info');
@@ -87,10 +95,15 @@ async function analyzeDocs() {
         showToast('Documentation analysis complete!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error analyzing documentation', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Analyze code
 async function analyzeCode() {
     try {
         showToast('Analyzing code...', 'info');
@@ -107,10 +120,15 @@ async function analyzeCode() {
         showToast('Code analysis complete!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error analyzing code', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Analyze tests
 async function analyzeTests() {
     try {
         showToast('Analyzing tests...', 'info');
@@ -127,10 +145,15 @@ async function analyzeTests() {
         showToast('Test analysis complete!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error analyzing tests', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Create issues
 async function createIssues() {
     try {
         showToast('Creating issues...', 'info');
@@ -143,15 +166,19 @@ async function createIssues() {
         });
         const data = await response.json();
         
-        displayAnalysisResults(data);
-        refreshIssues();
-        showToast(`Created ${data.issues_created} new issues!`, 'success');
+        displayAnalysisResults(data, 'issues');
+        showToast('Issues created successfully!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error creating issues', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Refresh issues
 async function refreshIssues() {
     try {
         showToast('Refreshing issues...', 'info');
@@ -162,21 +189,26 @@ async function refreshIssues() {
             },
             body: JSON.stringify(currentRepo)
         });
-        const issues = await response.json();
+        const data = await response.json();
         
-        displayIssues(issues);
-        showToast('Issues refreshed!', 'success');
+        displayIssues(data);
+        showToast('Issues refreshed successfully!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error fetching issues', 'error');
+        const statusDiv = document.getElementById('repo-status');
+        statusDiv.textContent = error.message;
+        statusDiv.classList.add('error');
+        setTimeout(() => statusDiv.classList.remove('error'), 3000);
+        showToast(error.message, 'error');
     }
 }
 
+// Display analysis results
 function displayAnalysisResults(data, category) {
     const suggestionsDiv = document.getElementById('suggestions');
     suggestionsDiv.innerHTML = '';
 
-    if (!data || !data.suggestions) {
+    if (!data.suggestions) {
         return;
     }
 
@@ -193,9 +225,6 @@ function displayAnalysisResults(data, category) {
                 ${suggestions.map(s => `
                     <div class="suggestion-item">
                         <p>${s}</p>
-                        <div class="priority-badge">
-                            Priority: ${s.priority || 'Medium'}
-                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -204,39 +233,28 @@ function displayAnalysisResults(data, category) {
     }
 }
 
+// Display issues
 function displayIssues(issues) {
     const issuesDiv = document.getElementById('issues');
     issuesDiv.innerHTML = '';
 
-    if (issues.length === 0) {
-        issuesDiv.innerHTML = '<p>No issues found</p>';
+    if (!Array.isArray(issues)) {
         return;
     }
-
-    const issuesList = document.createElement('div');
-    issuesList.className = 'issues-list';
 
     issues.forEach(issue => {
         const issueCard = document.createElement('div');
         issueCard.className = 'issue-card';
         issueCard.innerHTML = `
-            <h4>${issue.title}</h4>
-            <div class="issue-details">
-                <div class="status ${issue.state === 'open' ? 'open' : 'closed'}">
-                    ${issue.state === 'open' ? 'Open' : 'Closed'}
-                </div>
-                <p>${issue.body}</p>
-                <div class="issue-meta">
-                    <span><i class="fas fa-calendar"></i> Created: ${new Date(issue.created_at).toLocaleDateString()}</span>
-                    <span><i class="fas fa-calendar"></i> Updated: ${new Date(issue.updated_at).toLocaleDateString()}</span>
-                    <span><i class="fas fa-comments"></i> Comments: ${issue.comments}</span>
-                </div>
+            <div class="issue-number">#${issue.number}</div>
+            <div class="issue-title">${issue.title}</div>
+            <div class="issue-body">${issue.body}</div>
+            <div class="issue-state ${issue.state.toLowerCase()}">
+                ${issue.state}
             </div>
         `;
-        issuesList.appendChild(issueCard);
+        issuesDiv.appendChild(issueCard);
     });
-
-    issuesDiv.appendChild(issuesList);
 }
 
 // Add event listeners for buttons
