@@ -11,7 +11,7 @@ class GitHubConfig(BaseModel):
     repo_name: str
 
 class AIConfig(BaseModel):
-    model_name: str = "gemini-pro"
+    model_name: str = "gemini-2.0-flash"
     temperature: float = 0.7
     max_output_tokens: int = 2048
 

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artificial Builders - AI GitHub Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .analysis-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .issues-list {
+            margin-top: 20px;
+        }
+        .issue-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+        .issue-title {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .issue-state {
+            color: #4CAF50;
+        }
+        .issue-state.closed {
+            color: #db4437;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Artificial Builders - AI GitHub Assistant</h1>
+            <p>Analyze and contribute to GitHub repositories using AI</p>
+        </div>
+
+        <div class="controls">
+            <button class="button" onclick="analyzeRepository()">Analyze Repository</button>
+            <button class="button" onclick="createIssues()">Create Issues</button>
+            <button class="button" onclick="refreshIssues()">Refresh Issues</button>
+        </div>
+
+        <div id="analysisResults" class="analysis-results">
+            <h3>Analysis Results</h3>
+            <div id="suggestions"></div>
+        </div>
+
+        <div class="issues-list">
+            <h3>Issues</h3>
+            <div id="issues"></div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeRepository() {
+            try {
+                const response = await fetch('http://localhost:8000/api/analyze');
+                const data = await response.json();
+                
+                displayAnalysisResults(data);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error analyzing repository');
+            }
+        }
+
+        async function createIssues() {
+            try {
+                const response = await fetch('http://localhost:8000/api/create_issues', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                displayAnalysisResults(data);
+                refreshIssues();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating issues');
+            }
+        }
+
+        async function refreshIssues() {
+            try {
+                const response = await fetch('http://localhost:8000/api/issues');
+                const issues = await response.json();
+                
+                displayIssues(issues);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error fetching issues');
+            }
+        }
+
+        function displayAnalysisResults(data) {
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = '';
+
+            for (const [category, suggestions] of Object.entries(data.suggestions)) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.innerHTML = `
+                    <h4>${category.replace('_', ' ').title()}</h4>
+                    <ul>
+                        ${suggestions.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                `;
+                suggestionsDiv.appendChild(categoryDiv);
+            }
+
+            const issuesCreated = document.createElement('p');
+            issuesCreated.textContent = `Issues created: ${data.issues_created}`;
+            suggestionsDiv.appendChild(issuesCreated);
+        }
+
+        function displayIssues(issues) {
+            const issuesDiv = document.getElementById('issues');
+            issuesDiv.innerHTML = '';
+
+            issues.forEach(issue => {
+                const issueDiv = document.createElement('div');
+                issueDiv.className = 'issue-item';
+                issueDiv.innerHTML = `
+                    <div class="issue-title">#${issue.number} ${issue.title}</div>
+                    <div>${issue.body}</div>
+                    <div class="issue-state ${issue.state}">${issue.state}</div>
+                `;
+                issuesDiv.appendChild(issueDiv);
+            });
+        }
+
+        // Initial refresh
+        refreshIssues();
+    </script>
+</body>
+</html>
