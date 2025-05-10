@@ -7,6 +7,12 @@ import os
 
 load_dotenv()
 
+print("Environment variables:")
+print(f"GITHUB_TOKEN: {'***' if os.getenv('GITHUB_TOKEN') else 'NOT SET'}")
+print(f"GEMINI_API_KEY: {'***' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}")
+print(f"REPO_OWNER: {os.getenv('REPO_OWNER')}")
+print(f"REPO_NAME: {os.getenv('REPO_NAME')}\n")
+
 class BaseAgent:
     def __init__(self, repo_owner: str, repo_name: str):
         # Initialize Google Gemini
@@ -14,11 +20,21 @@ class BaseAgent:
         self.model = genai.GenerativeModel("gemini-2.0-flash")
         
         # Initialize GitHub client
-        self.gh = login(token=os.getenv('GITHUB_TOKEN'))
-        self.repo = self.gh.repository(repo_owner, repo_name)
-        
-        # Store repository information
-        self.repo_info = self._get_repository_info()
+        try:
+            token = os.getenv('GITHUB_TOKEN')
+            if not token:
+                raise ValueError("GITHUB_TOKEN environment variable is not set")
+            
+            self.gh = login(token=token)
+            self.repo = self.gh.repository(repo_owner, repo_name)
+            if not self.repo:
+                raise ValueError(f"Repository {repo_owner}/{repo_name} not found")
+            
+            # Store repository information
+            self.repo_info = self._get_repository_info()
+        except Exception as e:
+            print(f"Error initializing GitHub client: {e}")
+            raise
         
     def _get_repository_info(self) -> Dict[str, Any]:
         return {
@@ -88,3 +104,21 @@ class BaseAgent:
         except Exception as e:
             print(f"Error creating branch: {e}")
             return False
+
+    async def get_issues(self) -> List[Dict[str, Any]]:
+        """Get all open issues from the repository."""
+        try:
+            issues = self.repo.issues(state="open")
+            return [
+                {
+                    'number': issue.number,
+                    'title': issue.title,
+                    'url': issue.html_url,
+                    'created_at': issue.created_at.isoformat(),
+                    'updated_at': issue.updated_at.isoformat()
+                }
+                for issue in issues
+            ]
+        except Exception as e:
+            print(f"Error fetching issues: {e}")
+            raise
