@@ -69,15 +69,15 @@ async function setRepository() {
     }
 }
 
-async function analyzeRepository() {
+async function analyzeIssues() {
     if (!currentRepo) {
         showToast('Please set a repository first', 'error');
         return;
     }
 
     try {
-        showToast('Analyzing repository...', 'info');
-        const response = await fetch('http://localhost:8001/api/analyze', {
+        showToast('Analyzing issues...', 'info');
+        const response = await fetch('http://localhost:8001/api/analyze/issues', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -86,11 +86,86 @@ async function analyzeRepository() {
         });
         const data = await response.json();
         
-        displayAnalysisResults(data);
-        showToast('Analysis complete!', 'success');
+        displayAnalysisResults(data, 'issues');
+        showToast('Issue analysis complete!', 'success');
     } catch (error) {
         console.error('Error:', error);
-        showToast('Error analyzing repository', 'error');
+        showToast('Error analyzing issues', 'error');
+    }
+}
+
+async function analyzeDocs() {
+    if (!currentRepo) {
+        showToast('Please set a repository first', 'error');
+        return;
+    }
+
+    try {
+        showToast('Analyzing documentation...', 'info');
+        const response = await fetch('http://localhost:8001/api/analyze/docs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentRepo)
+        });
+        const data = await response.json();
+        
+        displayAnalysisResults(data, 'docs');
+        showToast('Documentation analysis complete!', 'success');
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error analyzing documentation', 'error');
+    }
+}
+
+async function analyzeCode() {
+    if (!currentRepo) {
+        showToast('Please set a repository first', 'error');
+        return;
+    }
+
+    try {
+        showToast('Analyzing code...', 'info');
+        const response = await fetch('http://localhost:8001/api/analyze/code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentRepo)
+        });
+        const data = await response.json();
+        
+        displayAnalysisResults(data, 'code');
+        showToast('Code analysis complete!', 'success');
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error analyzing code', 'error');
+    }
+}
+
+async function analyzeTests() {
+    if (!currentRepo) {
+        showToast('Please set a repository first', 'error');
+        return;
+    }
+
+    try {
+        showToast('Analyzing tests...', 'info');
+        const response = await fetch('http://localhost:8001/api/analyze/tests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentRepo)
+        });
+        const data = await response.json();
+        
+        displayAnalysisResults(data, 'tests');
+        showToast('Test analysis complete!', 'success');
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error analyzing tests', 'error');
     }
 }
 
@@ -211,6 +286,13 @@ function displayIssues(issues) {
 
     issuesDiv.appendChild(issuesList);
 }
+
+// Add event listeners for buttons
+document.getElementById('analyze-issues-btn').addEventListener('click', analyzeIssues);
+document.getElementById('analyze-docs-btn').addEventListener('click', analyzeDocs);
+document.getElementById('analyze-code-btn').addEventListener('click', analyzeCode);
+document.getElementById('analyze-tests-btn').addEventListener('click', analyzeTests);
+document.getElementById('refresh-btn').addEventListener('click', refreshIssues);
 
 // Initial refresh
 refreshIssues();

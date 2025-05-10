@@ -5,7 +5,14 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional, Any
 import uvicorn
-from ai_agent import GitHubAIAssistant, GitHubConfig, AIConfig
+from ai_agent import GitHubConfig, AIConfig
+from specialized_agents import (
+    IssueReportingAgent,
+    DocumentationImprovementAgent,
+    CodeContributionAgent,
+    CodeReviewAgent,
+    TestAutomationAgent
+)
 from dotenv import load_dotenv
 import os
 import json
@@ -28,15 +35,21 @@ app.add_middleware(
 # Load environment variables
 load_dotenv()
 
-# Initialize AI Assistant
+# Initialize specialized agents
 config = GitHubConfig(
     token=os.getenv('GITHUB_TOKEN'),
-    repo_owner=os.getenv('REPO_OWNER', 'ethereumtf'),
-    repo_name=os.getenv('REPO_NAME', 'abc')
+    repo_owner=os.getenv('REPO_OWNER', 'tensorus'),
+    repo_name=os.getenv('REPO_NAME', 'tensorus')
 )
 
 ai_config = AIConfig()
-assistant = GitHubAIAssistant(config, ai_config)
+
+# Initialize specialized agents
+issue_agent = IssueReportingAgent(config, ai_config)
+docs_agent = DocumentationImprovementAgent(config, ai_config)
+code_agent = CodeContributionAgent(config, ai_config)
+review_agent = CodeReviewAgent(config, ai_config)
+test_agent = TestAutomationAgent(config, ai_config)
 
 class AnalysisResponse(BaseModel):
     status: str
@@ -53,9 +66,9 @@ class Issue(BaseModel):
     updated_at: str
     comments: int
 
-@app.post("/api/analyze")
-async def analyze_repository(request: Request):
-    """Analyze the repository and return suggestions"""
+@app.post("/api/analyze/issues")
+async def analyze_issues(request: Request):
+    """Analyze the repository for potential issues to report"""
     try:
         # Get repository settings from request
         repo_data = await request.json()
@@ -66,94 +79,25 @@ async def analyze_repository(request: Request):
             raise HTTPException(status_code=400, detail="Repository owner and name are required")
 
         # Update repository configuration
-        assistant.config.repo_owner = owner
-        assistant.config.repo_name = repo
-        assistant.repo = assistant.gh.repository(owner, repo)
-
-        # Get repository information
-        repo_info = {
-            'description': assistant.repo.description or "No description",
-            'languages': assistant._get_languages(),
-            'stars': assistant.repo.stargazers_count,
-            'forks': assistant.repo.forks_count,
-            'watchers': assistant.repo.watchers_count,
-            'created_at': str(assistant.repo.created_at),
-            'updated_at': str(assistant.repo.updated_at)
-        }
+        issue_agent.config.repo_owner = owner
+        issue_agent.config.repo_name = repo
+        issue_agent.repo = issue_agent.gh.repository(owner, repo)
 
         # Get analysis
-        analysis = assistant.analyze_repository()
-        
-        try:
-            return AnalysisResponse(
-                status="success",
-                suggestions=analysis,
-                issues_created=0,
-                repository_info=repo_info
-            )
-        except Exception as e:
-            print(f"Error creating response: {e}")
-            return AnalysisResponse(
-                status="error",
-                suggestions={},
-                issues_created=0,
-                repository_info={}
-            )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/create_issues")
-async def create_issues(request: Request):
-    """Create issues based on analysis"""
-    try:
-        # Get repository settings from request
-        repo_data = await request.json()
-        owner = repo_data.get('owner')
-        repo = repo_data.get('repo')
-
-        if not owner or not repo:
-            raise HTTPException(status_code=400, detail="Repository owner and name are required")
-
-        # Update repository configuration
-        assistant.config.repo_owner = owner
-        assistant.config.repo_name = repo
-        assistant.repo = assistant.gh.repository(owner, repo)
-
-        analysis = assistant.analyze_repository()
-        issues_created = 0
-        
-        for category, suggestions in analysis.items():
-            for suggestion in suggestions:
-                title = f"[AI Suggestion] {category.replace('_', ' ').title()}: {suggestion[:50]}"
-                body = f"""
-                AI Analysis: {suggestion}
-                
-                Category: {category.replace('_', ' ').title()}
-                Status: Awaiting Review
-                """
-                if assistant.create_issue(title, body):
-                    issues_created += 1
+        analysis = issue_agent.analyze_issues()
         
         return AnalysisResponse(
             status="success",
             suggestions=analysis,
-            issues_created=issues_created,
-            repository_info={
-                'description': assistant.repo.description or "No description",
-                'languages': assistant._get_languages(),
-                'stars': assistant.repo.stargazers_count,
-                'forks': assistant.repo.forks_count,
-                'watchers': assistant.repo.watchers_count,
-                'created_at': str(assistant.repo.created_at),
-                'updated_at': str(assistant.repo.updated_at)
-            }
+            issues_created=0,
+            repository_info={}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/issues")
-async def get_issues(request: Request):
-    """Get all issues in the repository"""
+@app.post("/api/analyze/docs")
+async def analyze_docs(request: Request):
+    """Analyze the repository for documentation improvements"""
     try:
         # Get repository settings from request
         repo_data = await request.json()
@@ -164,41 +108,112 @@ async def get_issues(request: Request):
             raise HTTPException(status_code=400, detail="Repository owner and name are required")
 
         # Update repository configuration
-        assistant.config.repo_owner = owner
-        assistant.config.repo_name = repo
-        assistant.repo = assistant.gh.repository(owner, repo)
+        docs_agent.config.repo_owner = owner
+        docs_agent.config.repo_name = repo
+        docs_agent.repo = docs_agent.gh.repository(owner, repo)
 
-        issues = []
-        for issue in assistant.repo.issues(state='all'):
-            issues.append({
-                'title': issue.title,
-                'body': issue.body,
-                'number': issue.number,
-                'state': issue.state,
-                'created_at': str(issue.created_at),
-                'updated_at': str(issue.updated_at),
-                'comments': issue.comments_count
-            })
-        return issues
+        # Get analysis
+        analysis = docs_agent.analyze_documentation()
+        
+        return AnalysisResponse(
+            status="success",
+            suggestions=analysis,
+            issues_created=0,
+            repository_info={}
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/repository")
-async def get_repository_info():
-    """Get repository information"""
+@app.post("/api/analyze/code")
+async def analyze_code(request: Request):
+    """Analyze the repository for code contributions"""
     try:
-        repo_info = {
-            'description': assistant.repo.description or "No description",
-            'languages': assistant._get_languages(),
-            'stars': assistant.repo.stargazers_count,
-            'forks': assistant.repo.forks_count,
-            'watchers': assistant.repo.watchers_count,
-            'created_at': str(assistant.repo.created_at),
-            'updated_at': str(assistant.repo.updated_at),
-            'open_issues': assistant.repo.open_issues_count,
-            'default_branch': assistant.repo.default_branch
+        # Get repository settings from request
+        repo_data = await request.json()
+        owner = repo_data.get('owner')
+        repo = repo_data.get('repo')
+
+        if not owner or not repo:
+            raise HTTPException(status_code=400, detail="Repository owner and name are required")
+
+        # Update repository configuration
+        code_agent.config.repo_owner = owner
+        code_agent.config.repo_name = repo
+        code_agent.repo = code_agent.gh.repository(owner, repo)
+
+        # Get analysis
+        analysis = code_agent.analyze_codebase()
+        
+        return AnalysisResponse(
+            status="success",
+            suggestions=analysis,
+            issues_created=0,
+            repository_info={}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/analyze/tests")
+async def analyze_tests(request: Request):
+    """Analyze the repository for testing and automation improvements"""
+    try:
+        # Get repository settings from request
+        repo_data = await request.json()
+        owner = repo_data.get('owner')
+        repo = repo_data.get('repo')
+
+        if not owner or not repo:
+            raise HTTPException(status_code=400, detail="Repository owner and name are required")
+
+        # Update repository configuration
+        test_agent.config.repo_owner = owner
+        test_agent.config.repo_name = repo
+        test_agent.repo = test_agent.gh.repository(owner, repo)
+
+        # Get analysis
+        analysis = test_agent.analyze_tests()
+        
+        return AnalysisResponse(
+            status="success",
+            suggestions=analysis,
+            issues_created=0,
+            repository_info={}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/create_issue")
+async def create_issue(request: Request):
+    """Create a specific issue based on analysis"""
+    try:
+        # Get repository settings from request
+        repo_data = await request.json()
+        owner = repo_data.get('owner')
+        repo = repo_data.get('repo')
+        category = repo_data.get('category')
+        suggestion = repo_data.get('suggestion')
+
+        if not owner or not repo or not category or not suggestion:
+            raise HTTPException(status_code=400, detail="Repository owner, name, category, and suggestion are required")
+
+        # Update repository configuration
+        issue_agent.config.repo_owner = owner
+        issue_agent.config.repo_name = repo
+        issue_agent.repo = issue_agent.gh.repository(owner, repo)
+
+        # Create issue
+        title = f"[{category.replace('_', ' ')}] {suggestion[:50]}..."
+        body = f"""{suggestion}
+
+Category: {category}
+Priority: Medium
+"""
+        issue = issue_agent.create_issue(title, body)
+
+        return {
+            'status': 'success',
+            'issue': issue
         }
-        return repo_info
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
