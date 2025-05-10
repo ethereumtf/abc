@@ -1,5 +1,3 @@
-let currentRepo = null;
-
 // Helper function to convert string to title case
 String.prototype.toTitleCase = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
@@ -26,55 +24,34 @@ function showToast(message, type = 'info') {
     }, 100);
 }
 
-async function setRepository() {
-    const repoUrl = document.getElementById('repo-url').value.trim();
-    if (!repoUrl) {
-        showToast('Please enter a GitHub repository URL', 'error');
-        return;
-    }
+// Initialize with default repository
+const defaultRepo = {
+    owner: 'tensorus',
+    repo: 'tensorus'
+};
 
-    try {
-        // Extract owner and repo from URL
-        const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-        if (!match) {
-            throw new Error('Invalid GitHub repository URL format');
-        }
+// Set default repository URL
+const repoUrlInput = document.getElementById('repo-url');
+repoUrlInput.value = 'https://github.com/tensorus/tensorus';
+repoUrlInput.disabled = true;
 
-        const [_, owner, repo] = match;
-        
-        // Update environment variables
-        localStorage.setItem('REPO_OWNER', owner);
-        localStorage.setItem('REPO_NAME', repo);
+// Update UI with default repository
+const repoStatus = document.getElementById('repo-status');
+repoStatus.textContent = `Connected to ${defaultRepo.owner}/${defaultRepo.repo}`;
+repoStatus.classList.add('success');
 
-        // Update UI
-        document.getElementById('repo-status').textContent = `Connected to ${owner}/${repo}`;
-        document.getElementById('repo-status').classList.add('success');
-        
-        // Enable buttons
-        document.getElementById('analyze-btn').disabled = false;
-        document.getElementById('create-issues-btn').disabled = false;
-        document.getElementById('refresh-btn').disabled = false;
+// Enable buttons by default
+const actionButtons = document.querySelectorAll('.action-btn');
+actionButtons.forEach(btn => btn.disabled = false);
+const analyzeBtn = document.getElementById('analyze-btn');
+analyzeBtn.disabled = false;
+const createIssuesBtn = document.getElementById('create-issues-btn');
+createIssuesBtn.disabled = false;
 
-        // Store current repo
-        currentRepo = { owner, repo };
-
-        showToast('Repository connected successfully!');
-    } catch (error) {
-        console.error('Error:', error);
-        const statusDiv = document.getElementById('repo-status');
-        statusDiv.textContent = error.message;
-        statusDiv.classList.add('error');
-        setTimeout(() => statusDiv.classList.remove('error'), 3000);
-        showToast(error.message, 'error');
-    }
-}
+// Store current repo
+let currentRepo = defaultRepo;
 
 async function analyzeIssues() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Analyzing issues...', 'info');
         const response = await fetch('http://localhost:8001/api/analyze/issues', {
@@ -95,11 +72,6 @@ async function analyzeIssues() {
 }
 
 async function analyzeDocs() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Analyzing documentation...', 'info');
         const response = await fetch('http://localhost:8001/api/analyze/docs', {
@@ -120,11 +92,6 @@ async function analyzeDocs() {
 }
 
 async function analyzeCode() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Analyzing code...', 'info');
         const response = await fetch('http://localhost:8001/api/analyze/code', {
@@ -145,11 +112,6 @@ async function analyzeCode() {
 }
 
 async function analyzeTests() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Analyzing tests...', 'info');
         const response = await fetch('http://localhost:8001/api/analyze/tests', {
@@ -170,11 +132,6 @@ async function analyzeTests() {
 }
 
 async function createIssues() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Creating issues...', 'info');
         const response = await fetch('http://localhost:8001/api/create_issues', {
@@ -196,11 +153,6 @@ async function createIssues() {
 }
 
 async function refreshIssues() {
-    if (!currentRepo) {
-        showToast('Please set a repository first', 'error');
-        return;
-    }
-
     try {
         showToast('Refreshing issues...', 'info');
         const response = await fetch('http://localhost:8001/api/issues', {
@@ -220,7 +172,7 @@ async function refreshIssues() {
     }
 }
 
-function displayAnalysisResults(data) {
+function displayAnalysisResults(data, category) {
     const suggestionsDiv = document.getElementById('suggestions');
     suggestionsDiv.innerHTML = '';
 
@@ -228,7 +180,7 @@ function displayAnalysisResults(data) {
         return;
     }
 
-    for (const [category, suggestions] of Object.entries(data.suggestions)) {
+    for (const [cat, suggestions] of Object.entries(data.suggestions)) {
         if (!suggestions || !Array.isArray(suggestions)) {
             continue;
         }
@@ -236,7 +188,7 @@ function displayAnalysisResults(data) {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category-card';
         categoryDiv.innerHTML = `
-            <h3>${category.replace('_', ' ').toTitleCase()}</h3>
+            <h3>${cat.replace('_', ' ').toTitleCase()}</h3>
             <div class="suggestion-list">
                 ${suggestions.map(s => `
                     <div class="suggestion-item">
@@ -292,7 +244,13 @@ document.getElementById('analyze-issues-btn').addEventListener('click', analyzeI
 document.getElementById('analyze-docs-btn').addEventListener('click', analyzeDocs);
 document.getElementById('analyze-code-btn').addEventListener('click', analyzeCode);
 document.getElementById('analyze-tests-btn').addEventListener('click', analyzeTests);
+document.getElementById('create-issues-btn').addEventListener('click', createIssues);
 document.getElementById('refresh-btn').addEventListener('click', refreshIssues);
 
-// Initial refresh
-refreshIssues();
+// Initialize repository connection
+window.addEventListener('load', () => {
+    // Update UI with default repository
+    const repoStatus = document.getElementById('repo-status');
+    repoStatus.textContent = `Connected to ${defaultRepo.owner}/${defaultRepo.repo}`;
+    repoStatus.classList.add('success');
+});
