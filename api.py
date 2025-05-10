@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import uvicorn
 from ai_agent import GitHubAIAssistant, GitHubConfig, AIConfig
 from dotenv import load_dotenv
@@ -18,10 +18,11 @@ app.mount("/static", StaticFiles(directory="."), name="static")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Type", "Authorization"]
 )
 
 # Load environment variables
@@ -39,9 +40,9 @@ assistant = GitHubAIAssistant(config, ai_config)
 
 class AnalysisResponse(BaseModel):
     status: str
-    suggestions: Dict[str, List[str]]
-    issues_created: int
-    repository_info: Dict[str, str]
+    suggestions: Dict[str, List[str]] = {}
+    issues_created: int = 0
+    repository_info: Dict[str, Any] = {}
 
 class Issue(BaseModel):
     title: str
@@ -83,12 +84,21 @@ async def analyze_repository(request: Request):
         # Get analysis
         analysis = assistant.analyze_repository()
         
-        return AnalysisResponse(
-            status="success",
-            suggestions=analysis,
-            issues_created=0,
-            repository_info=repo_info
-        )
+        try:
+            return AnalysisResponse(
+                status="success",
+                suggestions=analysis,
+                issues_created=0,
+                repository_info=repo_info
+            )
+        except Exception as e:
+            print(f"Error creating response: {e}")
+            return AnalysisResponse(
+                status="error",
+                suggestions={},
+                issues_created=0,
+                repository_info={}
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -195,6 +205,10 @@ async def get_repository_info():
 @app.get("/")
 async def root():
     return FileResponse("index.html")
+
+@app.get("/your-code.js")
+async def serve_js():
+    return FileResponse("your-code.js")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)

@@ -8,14 +8,17 @@
     <style>
         :root {
             --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
             --success-color: #16a34a;
             --error-color: #dc2626;
-            --background-color: #f3f4f6;
+            --background-color: #f9fafb;
             --card-background: #ffffff;
             --text-color: #1f2937;
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --shadow-color: rgba(0, 0, 0, 0.05);
+            --gradient-start: #2563eb;
+            --gradient-end: #1d4ed8;
         }
 
         * {
@@ -25,10 +28,12 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.5;
+            margin: 0;
+            padding: 0;
         }
 
         .container {
@@ -38,6 +43,40 @@
             display: flex;
             flex-direction: column;
             gap: 2rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .repo-input {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
         }
 
         .header {
@@ -71,114 +110,115 @@
         }
 
         .controls {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .button {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             min-width: 150px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        .button:disabled {
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
 
         .button:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px var(--shadow-color);
         }
 
         .button:active {
             transform: translateY(0);
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.info {
+            background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+            color: var(--text-color);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #bbf7d0, #dcfce7);
+            color: var(--success-color);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #fecaca, #fee2e2);
+            color: var(--error-color);
         }
 
         .button i {
             font-size: 1.1rem;
         }
 
+        .input-field {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            background: white;
+            color: var(--text-color);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex: 1;
+            max-width: 600px;
+        }
+
         .analysis-results {
             margin-top: 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 1.5rem;
-        }
-
-        .category-card {
-            background-color: var(--card-background);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
-        }
-
-        .category-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-        }
-
-        .suggestion-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .suggestion-item {
-            padding: 0.75rem;
-            border-left: 3px solid var(--primary-color);
-            margin-bottom: 0.5rem;
-            background-color: rgba(37, 99, 235, 0.05);
-            border-radius: 0 0.5rem 0.5rem 0;
-        }
-
-        .issues-section {
-            margin-top: 2rem;
-        }
-
-        .issues-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .issue-card {
-            background-color: var(--card-background);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px var(--shadow-color);
-        }
-
-        .issue-card h4 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-
-        .issue-card .status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .issue-card .status.open {
-            background-color: rgba(22, 163, 74, 0.1);
-            color: var(--success-color);
-        }
-
-        .issue-card .status.closed {
-            background-color: rgba(220, 38, 38, 0.1);
-            color: var(--error-color);
         }
 
         .category-card {
@@ -273,201 +313,71 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="hero">
             <h1>Artificial Builders</h1>
-            <p>AI-Powered GitHub Repository Analysis and Contribution Assistant</p>
+            <p>AI-Powered GitHub Assistant for Open Source Projects</p>
+            <div class="repo-input">
+                <div class="input-group">
+                    <input type="text" id="repo-url" class="input-field" placeholder="https://github.com/owner/repo">
+                    <button onclick="setRepository()" class="button">
+                        <i class="fab fa-github"></i>
+                        Connect Repository
+                    </button>
+                </div>
+                <div id="repo-status" class="repo-status"></div>
+            </div>
         </div>
 
         <div class="controls">
-            <input type="text" id="repository-input" placeholder="Enter GitHub repository URL">
-            <button onclick="analyzeRepository()" class="button" id="analyze-btn" disabled>
-                <i class="fas fa-microscope"></i>
+            <button id="analyze-btn" onclick="analyzeRepository()" class="button" disabled>
+                <i class="fas fa-brain"></i>
                 Analyze Repository
             </button>
-            <button onclick="createIssues()" class="button" id="create-issues-btn" disabled>
-                <i class="fas fa-plus-circle"></i>
+            <button id="create-issues-btn" onclick="createIssues()" class="button" disabled>
+                <i class="fas fa-lightbulb"></i>
                 Create Issues
             </button>
-            <button onclick="refreshIssues()" class="button" id="refresh-btn" disabled>
-                <i class="fas fa-sync-alt"></i>
+            <button id="refresh-btn" onclick="refreshIssues()" class="button" disabled>
+                <i class="fas fa-sync"></i>
                 Refresh Issues
             </button>
         </div>
 
-        <div class="analysis-results">
-            <div id="suggestions"></div>
-        </div>
+        <div class="analysis-results" id="suggestions"></div>
 
-        <div class="issues-list">
-            <h2>Issues</h2>
+        <div class="issues-section">
+            <h2>Recent Issues</h2>
             <div id="issues"></div>
         </div>
     </div>
 
     <script>
         let currentRepo = null;
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
 
-        async function setRepository() {
-            const repoUrl = document.getElementById('repo-url').value.trim();
-            if (!repoUrl) {
-                alert('Please enter a GitHub repository URL');
-                return;
-            }
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
 
-            try {
-                // Extract owner and repo from URL
-                const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-                if (!match) {
-                    throw new Error('Invalid GitHub repository URL format');
-                }
-
-                const [_, owner, repo] = match;
-                
-                // Update environment variables
-                localStorage.setItem('REPO_OWNER', owner);
-                localStorage.setItem('REPO_NAME', repo);
-
-                // Update UI
-                document.getElementById('repo-status').textContent = `Connected to ${owner}/${repo}`;
-                document.getElementById('repo-status').classList.add('success');
-                
-                // Enable buttons
-                document.getElementById('analyze-btn').disabled = false;
-                document.getElementById('create-issues-btn').disabled = false;
-                document.getElementById('refresh-btn').disabled = false;
-
-                // Store current repo
-                currentRepo = { owner, repo };
-            } catch (error) {
-                console.error('Error:', error);
-                const statusDiv = document.getElementById('repo-status');
-                statusDiv.textContent = error.message;
-                statusDiv.classList.add('error');
-                setTimeout(() => statusDiv.classList.remove('error'), 3000);
-            }
-        }
-
-        async function createIssues() {
-            if (!currentRepo) {
-                alert('Please set a repository first');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://localhost:8001/api/create_issues', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(currentRepo)
-                });
-                const data = await response.json();
-                
-                displayAnalysisResults(data);
-                refreshIssues();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error creating issues');
-            }
-        }
-
-        async function refreshIssues() {
-            if (!currentRepo) {
-                alert('Please set a repository first');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://localhost:8001/api/issues', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(currentRepo)
-                });
-                const issues = await response.json();
-                
-                displayIssues(issues);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error fetching issues');
-            }
-        }
-
-        function displayAnalysisResults(data) {
-            const suggestionsDiv = document.getElementById('suggestions');
-            suggestionsDiv.innerHTML = '';
-
-            for (const [category, suggestions] of Object.entries(data.suggestions)) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category-card';
-                categoryDiv.innerHTML = `
-                    <h3>${category.replace('_', ' ').title()}</h3>
-                    <div class="suggestion-list">
-                        ${suggestions.map(s => `
-                            <div class="suggestion-item">
-                                <p>${s}</p>
-                                <div class="priority-badge">
-                                    Priority: ${s.priority || 'Medium'}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                suggestionsDiv.appendChild(categoryDiv);
-            }
-
-            if (data.issues_created > 0) {
-                const issuesCreatedDiv = document.createElement('div');
-                issuesCreatedDiv.className = 'category-card';
-                issuesCreatedDiv.innerHTML = `
-                    <h3>Issues Created</h3>
-                    <p>${data.issues_created} new issues were created.</p>
-                `;
+            setTimeout(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
                 suggestionsDiv.appendChild(issuesCreatedDiv);
             }
         }
 
-        function displayIssues(issues) {
-            const issuesDiv = document.getElementById('issues');
-            issuesDiv.innerHTML = '';
 
-            if (issues.length === 0) {
-                issuesDiv.innerHTML = '<p>No issues found</p>';
-                return;
-            }
-
-            const issuesList = document.createElement('div');
-            issuesList.className = 'issues-list';
-
-            issues.forEach(issue => {
-                const issueCard = document.createElement('div');
-                issueCard.className = 'issue-card';
-                issueCard.innerHTML = `
-                    <h4>${issue.title}</h4>
-                    <div class="issue-details">
-                        <div class="status ${issue.state === 'open' ? 'open' : 'closed'}">
-                            ${issue.state === 'open' ? 'Open' : 'Closed'}
-                        </div>
-                        <p>${issue.body}</p>
-                        <div class="issue-meta">
-                            <span>Created: ${new Date(issue.created_at).toLocaleDateString()}</span>
-                            <span>Updated: ${new Date(issue.updated_at).toLocaleDateString()}</span>
-                            <span>Comments: ${issue.comments}</span>
-                        </div>
-                    </div>
-                `;
-                issuesList.appendChild(issueCard);
-            });
-
-            issuesDiv.appendChild(issuesList);
-        }
 
         // Initial refresh
         refreshIssues();
     </script>
 
     <!-- Font Awesome for icons -->
-    <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/50edc517b5.js" crossorigin="anonymous"></script>
+    <script src="your-code.js"></script>
 </body>
 </html>
